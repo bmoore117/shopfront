@@ -1,0 +1,14 @@
+{
+  "name": "shopfront",
+  "version": "1.0.0",
+  "description": "b9lap class project",
+  "main": "truffle-config.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "truffle test"
+  },
+  "author": "",
+  "license": "ISC"
+}
