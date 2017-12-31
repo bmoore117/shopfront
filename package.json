@@ -10,5 +10,8 @@
     "test": "truffle test"
   },
   "author": "",
-  "license": "ISC"
+  "license": "ISC",
+  "dependencies": {
+    "bluebird": "^3.5.1"
+  }
 }

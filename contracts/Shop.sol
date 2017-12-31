@@ -2,7 +2,7 @@ pragma solidity ^0.4.17;
 
 contract Shop {
     //ownership
-    address private owner;
+    address public owner;
     bool public isServiceEnabled;
     event LogServiceStateChanged(
         bool newState
@@ -19,7 +19,7 @@ contract Shop {
         address removed
     );
     event LogMerchantAdded(
-        address newAdmin
+        address newMerchant
     );
     event LogMerchantRemoved(
         address removed
@@ -93,12 +93,12 @@ contract Shop {
 
     function addMerchant(address toAdd) requireEnabled requireAdmin public {
         merchants[toAdd] = true;
-        LogAdministratorAdded(toAdd);
+        LogMerchantAdded(toAdd);
     }
 
     function removeMerchant(address toRemove) requireEnabled requireAdmin public {
         merchants[toRemove] = false;
-        LogAdministratorRemoved(toRemove);
+        LogMerchantRemoved(toRemove);
     }
     /************** End User Crud **************/
 
@@ -114,6 +114,7 @@ contract Shop {
 
     function addProduct(string name, string description, address merchant, uint stock, uint price) requireEnabled requireAdmin public returns (uint index) {
         require(!isProduct(name));
+        require(merchants[merchant]);
 
         uint idx = productIndex.push(name) - 1;
         products[name].index = idx;
@@ -124,6 +125,17 @@ contract Shop {
         
         LogProductAdded(name);
         return idx;
+    }
+
+    function getProductNameByIndex(uint index) public view returns (string productName) {
+        return productIndex[index];
+    }
+
+    function getProductByName(string name) public view returns (uint index, string description, address merchant, uint stock, uint price) {
+        require(isProduct(name));
+        Product memory p = products[name];
+
+        return (p.index, p.description, p.merchant, p.stock, p.price);
     }
 
     function removeProduct(string name) requireEnabled requireAdmin public {
