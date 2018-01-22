@@ -166,6 +166,28 @@ contract('Shop', function(accounts) {
         });
     });
 
+    it("should allow deletion of products by administrators", done => {
+        instance.removeProduct(product.name, {from: accounts[1]})
+        .then(txInfo => {
+            logs = txInfo.logs[0];
+            var eventType = logs.event;
+            var whoRemoved = logs.args.whoRemoved;
+            var productRemoved = logs.args.name;
+    
+            var result = eventType === "LogProductRemoved"
+                && product.name === productRemoved 
+                && whoRemoved === accounts[1] 
+            assert.isTrue(result, "Product removal did not log as expected");
+            return instance.isProduct.call(product.name);
+        }).then(status => {
+            if(status) {
+                done(new Error("Deleted product still exists"));
+            } else {
+                done();
+            }
+        })
+    })
+
     it("should reject withdrawals by non-merchants", done => {
         instance.withdrawProceeds(accounts[4], {from: accounts[4]})
         .then(txInfo => {

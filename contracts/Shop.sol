@@ -46,7 +46,7 @@ contract Shop {
         string name
     );
     event LogProductRemoved(
-        address whoAdded,
+        address whoRemoved,
         string name
     );
     event LogProductPurchased(
