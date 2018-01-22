@@ -11,17 +11,21 @@ contract Shop {
     //users
     mapping(address => bool) public administrators;
     mapping(address => bool) public merchants;
-    mapping(address => uint) private merchantBalances;
+    mapping(address => uint) public merchantBalances;
     event LogAdministratorAdded(
+        address whoAdded,
         address newAdmin
     );
     event LogAdministratorRemoved(
+        address whoRemoved,
         address removed
     );
     event LogMerchantAdded(
+        address whoAdded,
         address newMerchant
     );
     event LogMerchantRemoved(
+        address whoRemoved,
         address removed
     );
     event LogWithdrawalMade(
@@ -38,9 +42,11 @@ contract Shop {
         uint price;
     }
     event LogProductAdded(
+        address whoAdded,
         string name
     );
     event LogProductRemoved(
+        address whoAdded,
         string name
     );
     event LogProductPurchased(
@@ -83,22 +89,22 @@ contract Shop {
     /************** User Crud **************/
     function addAdministrator(address toAdd) requireEnabled requireOwner public {
         administrators[toAdd] = true;
-        LogAdministratorAdded(toAdd);
+        LogAdministratorAdded(msg.sender, toAdd);
     }
 
     function removeAdministrator(address toRemove) requireEnabled requireOwner public {
         administrators[toRemove] = false;
-        LogAdministratorRemoved(toRemove);
+        LogAdministratorRemoved(msg.sender, toRemove);
     }
 
     function addMerchant(address toAdd) requireEnabled requireAdmin public {
         merchants[toAdd] = true;
-        LogMerchantAdded(toAdd);
+        LogMerchantAdded(msg.sender, toAdd);
     }
 
     function removeMerchant(address toRemove) requireEnabled requireAdmin public {
         merchants[toRemove] = false;
-        LogMerchantRemoved(toRemove);
+        LogMerchantRemoved(msg.sender, toRemove);
     }
     /************** End User Crud **************/
 
@@ -123,7 +129,7 @@ contract Shop {
         products[name].stock = stock;
         products[name].price = price;
         
-        LogProductAdded(name);
+        LogProductAdded(msg.sender, name);
         return idx;
     }
 
@@ -139,13 +145,14 @@ contract Shop {
     }
 
     function removeProduct(string name) requireEnabled requireAdmin public {
-        require(!isProduct(name));
+        require(isProduct(name));
         uint rowToDelete = products[name].index;
         string memory keyToMove = productIndex[productIndex.length - 1];
         productIndex[rowToDelete] = keyToMove;
         products[keyToMove].index = rowToDelete; 
         productIndex.length--;
-        LogProductRemoved(name);
+        delete products[name];
+        LogProductRemoved(msg.sender, name);
     }
     /************** End Product Crud **************/
 
